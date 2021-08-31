@@ -28,8 +28,8 @@ export const LoginModal: FC = () => {
     <LoginForm onSubmit={handleSubmit}>
       {!!errors.length && (
         <ErrorMessage onClick={() => setErrors([])}>
-          {errors.map((error) => (
-            <p>{error}</p>
+          {errors.map((error, idx) => (
+            <p key={idx}>{error}</p>
           ))}
         </ErrorMessage>
       )}
