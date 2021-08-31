@@ -1,22 +1,23 @@
 import { FC, FormEvent, useState } from "react";
 import styled from "styled-components";
 
-export const LoginModal: FC = () => {
+export const LoginModal: FC<{
+  setErrors: (value: string[]) => unknown;
+}> = ({ setErrors }) => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<string[]>([]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    let errors = [];
+    let errorMessages = [];
     if (!name) {
-      errors.push("no name");
+      errorMessages.push("no name");
     }
     if (!password) {
-      errors.push("no password");
+      errorMessages.push("no password");
     }
-    if (!!errors.length) {
-      setErrors(errors);
+    if (!!errorMessages.length) {
+      setErrors(errorMessages);
     } else {
       console.log("you have been logged in!");
     }
@@ -26,13 +27,6 @@ export const LoginModal: FC = () => {
 
   return (
     <LoginForm onSubmit={handleSubmit}>
-      {!!errors.length && (
-        <ErrorMessage onClick={() => setErrors([])}>
-          {errors.map((error, idx) => (
-            <p key={idx}>{error}</p>
-          ))}
-        </ErrorMessage>
-      )}
       <Input
         type="text"
         value={name}
@@ -59,28 +53,10 @@ const LoginForm = styled.form`
   flex-direction: column;
   align-items: center;
   padding-top: 20px;
+  border: 2px dashed blue;
+  margin-top: 120px;
   ${Input} {
     width: 80%;
     margin-bottom: 5px;
-  }
-`;
-
-const ErrorMessage = styled.div`
-  width: 90%;
-  position: absolute;
-  top: 10px;
-  right: 0;
-  left: 0;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: red;
-  color: white;
-  padding: 10px 0;
-
-  & p {
-    margin: 0;
   }
 `;
