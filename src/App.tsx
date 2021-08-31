@@ -4,13 +4,23 @@ import styled from "styled-components";
 
 export const App: FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   return (
     <Page>
-      {!!errors.length && (
-        <Notification errors={errors} onClick={() => setErrors([])} />
+      {!loggedIn ? (
+        <>
+          {!!errors.length && (
+            <Notification errors={errors} onClick={() => setErrors([])} />
+          )}
+          <LoginModal
+            setErrors={(messages) => setErrors(messages)}
+            loginUser={(loggedIn) => setLoggedIn(loggedIn)}
+          />
+        </>
+      ) : (
+        <div>A Different Page!</div>
       )}
-      <LoginModal setErrors={(messages) => setErrors(messages)} />
     </Page>
   );
 };
