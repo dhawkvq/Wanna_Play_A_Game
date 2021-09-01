@@ -1,7 +1,7 @@
 import { Question } from "../types/Question";
 
 export type NewQuestion = {
-  author: string;
+  authorId: string;
   optionOneText: string;
   optionTwoText: string;
 };
@@ -14,14 +14,14 @@ export function generateUID() {
 }
 
 export function formatQuestion({
-  author,
+  authorId,
   optionOneText,
   optionTwoText,
 }: NewQuestion): Question {
   return {
     id: generateUID(),
     timestamp: Date.now(),
-    author,
+    authorId,
     optionOne: {
       votes: [],
       text: optionOneText,

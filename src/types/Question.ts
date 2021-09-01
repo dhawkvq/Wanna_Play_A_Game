@@ -2,7 +2,7 @@ import { Option } from "./Option";
 
 export interface Question {
   id: string;
-  author: string;
+  authorId: string;
   timestamp: number;
   optionOne: Option;
   optionTwo: Option;

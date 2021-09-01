@@ -45,7 +45,7 @@ export let users: UserDb = {
 export let questions: QuestionsDb = {
   "8xf0y6ziyjabvozdd253nd": {
     id: "8xf0y6ziyjabvozdd253nd",
-    author: "sarahedo",
+    authorId: "sarahedo",
     timestamp: 1467166872634,
     optionOne: {
       votes: ["sarahedo"],
@@ -58,7 +58,7 @@ export let questions: QuestionsDb = {
   },
   "6ni6ok3ym7mf1p33lnez": {
     id: "6ni6ok3ym7mf1p33lnez",
-    author: "johndoe",
+    authorId: "johndoe",
     timestamp: 1468479767190,
     optionOne: {
       votes: [],
@@ -71,7 +71,7 @@ export let questions: QuestionsDb = {
   },
   am8ehyc8byjqgar0jgpub9: {
     id: "am8ehyc8byjqgar0jgpub9",
-    author: "sarahedo",
+    authorId: "sarahedo",
     timestamp: 1488579767190,
     optionOne: {
       votes: [],
@@ -84,7 +84,7 @@ export let questions: QuestionsDb = {
   },
   loxhs1bqm25b708cmbf3g: {
     id: "loxhs1bqm25b708cmbf3g",
-    author: "tylermcginnis",
+    authorId: "tylermcginnis",
     timestamp: 1482579767190,
     optionOne: {
       votes: [],
@@ -97,7 +97,7 @@ export let questions: QuestionsDb = {
   },
   vthrdm985a262al8qx3do: {
     id: "vthrdm985a262al8qx3do",
-    author: "tylermcginnis",
+    authorId: "tylermcginnis",
     timestamp: 1489579767190,
     optionOne: {
       votes: ["tylermcginnis"],
@@ -110,7 +110,7 @@ export let questions: QuestionsDb = {
   },
   xj352vofupe1dqz9emx13r: {
     id: "xj352vofupe1dqz9emx13r",
-    author: "johndoe",
+    authorId: "johndoe",
     timestamp: 1493579767190,
     optionOne: {
       votes: ["johndoe"],
@@ -124,21 +124,23 @@ export let questions: QuestionsDb = {
 };
 
 export function _getUsers(): Promise<UserDb> {
-  return new Promise((res, rej) => {
+  return new Promise((res) => {
     setTimeout(() => res({ ...users }), 1000);
   });
 }
 
 export function _getQuestions(): Promise<QuestionsDb> {
-  return new Promise((res, rej) => {
+  return new Promise((res) => {
     setTimeout(() => res({ ...questions }), 1000);
   });
 }
 
 export function _saveQuestion(question: NewQuestion): Promise<Question> {
-  return new Promise((res, rej) => {
-    const authedUser = question.author;
+  return new Promise((res) => {
+    const { authorId } = question;
     const formattedQuestion = formatQuestion(question);
+    const author = users[authorId];
+    const previousAuthorQuestions = author.questions ?? [];
 
     setTimeout(() => {
       questions = {
@@ -148,11 +150,9 @@ export function _saveQuestion(question: NewQuestion): Promise<Question> {
 
       users = {
         ...users,
-        [authedUser]: {
-          ...users[authedUser],
-          questions: users[authedUser].questions?.concat([
-            formattedQuestion.id,
-          ]),
+        [authorId]: {
+          ...author,
+          questions: [...previousAuthorQuestions, formattedQuestion.id],
         },
       };
 
@@ -161,40 +161,44 @@ export function _saveQuestion(question: NewQuestion): Promise<Question> {
   });
 }
 
-// export function _saveQuestionAnswer({
-//   authedUser,
-//   qid,
-//   answer,
-// }:{
-//   authedUser: string;
-//   qid: string;
-//   answer: string;
-// }): Promise<void> {
-//   return new Promise((res, rej) => {
-//     setTimeout(() => {
-//       users = {
-//         ...users,
-//         [authedUser]: {
-//           ...users[authedUser],
-//           answers: {
-//             ...users[authedUser].answers,
-//             [qid]: answer,
-//           },
-//         },
-//       };
+export function _saveQuestionAnswer({
+  authorId,
+  qid,
+  option,
+}: {
+  authorId: string;
+  qid: string;
+  option: "optionOne" | "optionTwo";
+}): Promise<void> {
+  return new Promise((res) => {
+    const author = users[authorId];
+    const existingQuestion = questions[qid];
+    const currentOption = existingQuestion[option];
 
-//       questions = {
-//         ...questions,
-//         [qid]: {
-//           ...questions[qid],
-//           [answer]: {
-//             ...questions?[qid]?[answer],
-//             votes: questions[qid][answer].votes.concat([authedUser]),
-//           },
-//         },
-//       };
+    setTimeout(() => {
+      users = {
+        ...users,
+        [authorId]: {
+          ...author,
+          answers: {
+            ...author.answers,
+            [qid]: option,
+          },
+        },
+      };
 
-//       res();
-//     }, 500);
-//   });
-// }
+      questions = {
+        ...questions,
+        [qid]: {
+          ...existingQuestion,
+          [option]: {
+            ...currentOption,
+            votes: [...currentOption.votes, authorId],
+          },
+        },
+      };
+
+      res();
+    }, 500);
+  });
+}
