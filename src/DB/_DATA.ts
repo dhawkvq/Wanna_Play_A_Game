@@ -1,7 +1,7 @@
-import { User } from "./src/types/User";
-import { Question } from "./src/types/Question";
-import { NewQuestion } from "./src/utils";
-import { formatQuestion } from "./src/utils";
+import { User } from "../types/User";
+import { Question } from "../types/Question";
+import { NewQuestion } from "../utils";
+import { formatQuestion } from "../utils";
 
 export type UserDb = Record<string, User>;
 export type QuestionsDb = Record<string, Question>;
@@ -150,7 +150,9 @@ export function _saveQuestion(question: NewQuestion): Promise<Question> {
         ...users,
         [authedUser]: {
           ...users[authedUser],
-          questions: users[authedUser].questions.concat([formattedQuestion.id]),
+          questions: users[authedUser].questions?.concat([
+            formattedQuestion.id,
+          ]),
         },
       };
 
@@ -159,36 +161,40 @@ export function _saveQuestion(question: NewQuestion): Promise<Question> {
   });
 }
 
-export function _saveQuestionAnswer({
-  authedUser,
-  qid,
-  answer,
-}): Promise<void> {
-  return new Promise((res, rej) => {
-    setTimeout(() => {
-      users = {
-        ...users,
-        [authedUser]: {
-          ...users[authedUser],
-          answers: {
-            ...users[authedUser].answers,
-            [qid]: answer,
-          },
-        },
-      };
+// export function _saveQuestionAnswer({
+//   authedUser,
+//   qid,
+//   answer,
+// }:{
+//   authedUser: string;
+//   qid: string;
+//   answer: string;
+// }): Promise<void> {
+//   return new Promise((res, rej) => {
+//     setTimeout(() => {
+//       users = {
+//         ...users,
+//         [authedUser]: {
+//           ...users[authedUser],
+//           answers: {
+//             ...users[authedUser].answers,
+//             [qid]: answer,
+//           },
+//         },
+//       };
 
-      questions = {
-        ...questions,
-        [qid]: {
-          ...questions[qid],
-          [answer]: {
-            ...questions[qid][answer],
-            votes: questions[qid][answer].votes.concat([authedUser]),
-          },
-        },
-      };
+//       questions = {
+//         ...questions,
+//         [qid]: {
+//           ...questions[qid],
+//           [answer]: {
+//             ...questions?[qid]?[answer],
+//             votes: questions[qid][answer].votes.concat([authedUser]),
+//           },
+//         },
+//       };
 
-      res();
-    }, 500);
-  });
-}
+//       res();
+//     }, 500);
+//   });
+// }

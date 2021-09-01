@@ -33,5 +33,4 @@ const Page = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 1px dashed red;
 `;
