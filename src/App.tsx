@@ -1,6 +1,8 @@
 import { FC, useState } from "react";
 import { LoginModal, Navbar, Notification } from "./components";
 import styled from "styled-components";
+import { Route, Switch } from "react-router-dom";
+import { Home, LeaderBoard, NewPoll } from "./pages";
 
 export const App: FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
@@ -9,18 +11,20 @@ export const App: FC = () => {
   return (
     <Page>
       <Navbar loggedIn={loggedIn} onLogoutClick={() => setLoggedIn(false)} />
+      {!!errors.length && (
+        <Notification errors={errors} onClick={() => setErrors([])} />
+      )}
       {!loggedIn ? (
-        <>
-          {!!errors.length && (
-            <Notification errors={errors} onClick={() => setErrors([])} />
-          )}
-          <LoginModal
-            setErrors={(messages) => setErrors(messages)}
-            loginUser={(loggedIn) => setLoggedIn(loggedIn)}
-          />
-        </>
+        <LoginModal
+          setErrors={(messages) => setErrors(messages)}
+          loginUser={(loggedIn) => setLoggedIn(loggedIn)}
+        />
       ) : (
-        <div>A Different Page!</div>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route path="/leaderboard" component={LeaderBoard} />
+          <Route path="/add" component={NewPoll} />
+        </Switch>
       )}
     </Page>
   );

@@ -1,4 +1,5 @@
 import { FC } from "react";
+import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 
 export const Navbar: FC<{ loggedIn?: boolean; onLogoutClick?(): unknown }> = ({
@@ -8,9 +9,12 @@ export const Navbar: FC<{ loggedIn?: boolean; onLogoutClick?(): unknown }> = ({
   return (
     <Bar>
       {loggedIn && (
-        <button style={{ marginRight: 20 }} onClick={onLogoutClick}>
-          Sign Out
-        </button>
+        <>
+          <NavLink to="/add">+ New Poll</NavLink>
+          <NavLink to="/leaderboard">LeaderBoard</NavLink>
+          <NavLink to="/">Home</NavLink>
+          <button onClick={onLogoutClick}>Sign Out</button>
+        </>
       )}
     </Bar>
   );
@@ -25,4 +29,9 @@ const Bar = styled.div`
   padding: 25px 0px;
   position: absolute;
   top: 0;
+
+  a,
+  button {
+    margin-right: 12px;
+  }
 `;
