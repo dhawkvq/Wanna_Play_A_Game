@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { LoginModal, Notification } from "./components";
+import { LoginModal, Navbar, Notification } from "./components";
 import styled from "styled-components";
 
 export const App: FC = () => {
@@ -8,6 +8,7 @@ export const App: FC = () => {
 
   return (
     <Page>
+      <Navbar loggedIn={loggedIn} onLogoutClick={() => setLoggedIn(false)} />
       {!loggedIn ? (
         <>
           {!!errors.length && (

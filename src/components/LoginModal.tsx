@@ -6,11 +6,11 @@ export const LoginModal: FC<{
   setErrors: (value: string[]) => unknown;
   loginUser: (value: boolean) => unknown;
 }> = ({ setErrors, loginUser }) => {
-  const [name, setName] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [register, setRegister] = useState(false);
   const [existingUsers, setExistingUsers] = useState<UserDb>({});
-  const [selectedUser, setSelectedUser] = useState<string | undefined>();
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
 
   useEffect(() => {
     // Grab all exisiting users on mount
@@ -19,13 +19,21 @@ export const LoginModal: FC<{
       .catch((error) => setErrors([error.message]));
   }, [setErrors]);
 
+  const handleClick = (event: MouseEvent) => {
+    event.preventDefault();
+    setRegister((signUp) => !signUp);
+    setSelectedUserId(undefined);
+    setUserName("");
+    setPassword("");
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     let errorMessages = [];
-    if (!register && !name) {
-      errorMessages.push("no name");
+    if (!register && !userName) {
+      errorMessages.push("no userName");
     }
-    if (register && !selectedUser) {
+    if (register && !selectedUserId) {
       errorMessages.push("no selected user");
     }
     if (!password) {
@@ -36,78 +44,84 @@ export const LoginModal: FC<{
     } else {
       loginUser(true);
     }
-    setName("");
+    setUserName("");
     setPassword("");
   };
 
   return (
     <LoginForm onSubmit={handleSubmit}>
       <h2>{register ? "Login" : "Sign Up"}</h2>
-      {register ? (
-        <>
-          <label htmlFor="userSelect" style={{ marginBottom: 30 }}>
-            Choose and existing user
-          </label>
-          <select
-            id="userSelect"
-            style={{ marginBottom: 30 }}
-            onChange={(e) => {
-              setSelectedUser(e.currentTarget.value);
-              setPassword("");
-            }}
-          >
-            <option></option>
-            {Object.entries(existingUsers).map(([key, user]) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
-              </option>
-            ))}
-          </select>
-          {selectedUser && (
+      <InputContainer>
+        {register ? (
+          <>
+            <Select
+              id="userSelect"
+              onChange={(e) => {
+                setSelectedUserId(e.currentTarget.value);
+                setPassword("");
+              }}
+            >
+              <option></option>
+              {Object.entries(existingUsers).map(([key, user]) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </Select>
+            {selectedUserId && (
+              <Input
+                type="password"
+                onChange={(e) => setPassword(e.currentTarget.value)}
+                value={password}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <Input
+              type="text"
+              placeholder="User name"
+              value={userName}
+              onChange={(e) => setUserName(e.currentTarget.value)}
+            />
             <Input
               type="password"
-              onChange={(e) => setPassword(e.currentTarget.value)}
+              placeholder="Password"
               value={password}
+              onChange={(e) => setPassword(e.currentTarget.value)}
             />
-          )}
-        </>
-      ) : (
-        <>
-          <Input
-            type="text"
-            placeholder="User name"
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-          />
-          <Input
-            type="text"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
-          />
-        </>
-      )}
+          </>
+        )}
+      </InputContainer>
       <SubmitButton>Submit</SubmitButton>
       <p>
         {register ? "Not a member?" : "Already a member?"}{" "}
-        <InlineButton
-          onClick={(event: MouseEvent) => {
-            event.preventDefault();
-            setRegister((signUp) => !signUp);
-          }}
-        >
-          {register ? "Login" : "Sign Up"}
+        <InlineButton onClick={handleClick}>
+          {register ? "Sign Up" : "Login"}
         </InlineButton>
       </p>
     </LoginForm>
   );
 };
 
+const Select = styled.select`
+  border: 2px solid #c9c9c9;
+  border-radius: 5px;
+  height: 35px;
+  border-style: solid;
+  width: 100%;
+`;
+
+const InputContainer = styled.div`
+  width: 80%;
+`;
+
 const Input = styled.input`
   border-color: #c9c9c9;
   border-radius: 5px;
   height: 30px;
   border-style: solid;
+  width: 97%;
 `;
 
 const LoginForm = styled.form`
@@ -121,9 +135,10 @@ const LoginForm = styled.form`
   border: 2px solid #6262ff;
   border-radius: 8px;
   box-shadow: 2px 5px 15px #6262ffbc;
-  ${Input} {
-    width: 80%;
-    margin-bottom: 5px;
+
+  select,
+  input {
+    margin-bottom: 10px;
   }
 `;
 
