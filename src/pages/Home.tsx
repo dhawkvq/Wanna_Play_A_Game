@@ -1,72 +1,104 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useCallback } from "react";
 import { QuestionsDb, _getQuestions } from "../DB/_DATA";
 import { User } from "../types/User";
-import { Question } from "../types/Question";
+import styled from "styled-components";
+import { organizePollsByUser } from "../utils";
+import { ValueOf } from "../types/ValueOf";
+
+enum Preference {
+  ANSWERED = "Answered",
+  NOT_ANSWERED = "Not Answered",
+  NONE = "None",
+}
+
+type ValueOfPreference = ValueOf<Preference>;
 
 export const Home: FC<{
-  setErrors: (value: string[]) => unknown;
+  setErrors: React.Dispatch<React.SetStateAction<string[]>>;
   loggedInUser: User;
 }> = ({ setErrors, loggedInUser }) => {
   const [polls, setPolls] = useState<QuestionsDb>({});
+  const [loading, setLoading] = useState(false);
+  const [pollPreference, setPollPreference] = useState<ValueOfPreference>();
 
-  type SeperatedPolls = {
-    answeredPolls: Question[];
-    unAnsweredPolls: Question[];
-  };
+  const getPolls = useCallback(async () => {
+    try {
+      setLoading(true);
+      const polls = await _getQuestions();
+      setPolls(polls);
+    } catch (error) {
+      const newError = error as Error;
+      setErrors((curErrors) => [...curErrors, newError.message]);
+    } finally {
+      setLoading(false);
+    }
+  }, [setLoading, setErrors]);
 
   useEffect(() => {
-    _getQuestions()
-      .then((questions) => setPolls(questions))
-      .catch((error) => setErrors([error.message]));
-  }, [setErrors]);
+    getPolls();
+  }, [getPolls]);
 
-  const { answeredPolls, unAnsweredPolls } = Object.entries(polls).reduce(
-    (acc, [key, poll]) => {
-      const { optionOne, optionTwo } = poll;
-      if (
-        optionOne.votes.includes(loggedInUser.id) ||
-        optionTwo.votes.includes(loggedInUser.id)
-      ) {
-        acc.answeredPolls = [...acc.answeredPolls, poll];
-      } else {
-        acc.unAnsweredPolls = [...acc.unAnsweredPolls, poll];
-      }
-      return acc;
-    },
-    {
-      answeredPolls: [],
-      unAnsweredPolls: [],
-    } as SeperatedPolls
+  const { answeredPolls, unAnsweredPolls } = organizePollsByUser(
+    loggedInUser.id,
+    polls
   );
-  console.log(loggedInUser);
+
+  const preferredPoll =
+    pollPreference === Preference.ANSWERED
+      ? answeredPolls
+      : pollPreference === Preference.NOT_ANSWERED
+      ? unAnsweredPolls
+      : [];
+
   return (
-    <div style={{ display: "flex", border: "1px dashed blue", width: "100%" }}>
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <h1>Answered Polls</h1>
-        {answeredPolls.map((poll) => (
-          <h3 key={poll.id}>{poll.id}</h3>
-        ))}
-      </div>
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <h1>unAnswered Polls</h1>
-        {unAnsweredPolls.map((poll) => (
-          <h3 key={poll.id}>{poll.id}</h3>
-        ))}
-      </div>
+    <div
+      style={{
+        display: "flex",
+        flex: 1,
+        flexDirection: "column",
+        width: "100%",
+        marginTop: 70,
+      }}
+    >
+      <h1>Which Poll would you like to view?</h1>
+      {Object.entries(Preference).map(([key, value]) => {
+        return (
+          <div key={key}>
+            <input
+              type="radio"
+              id={key}
+              value={value}
+              onChange={(e) => setPollPreference(e.currentTarget.value)}
+              checked={pollPreference === value}
+            />
+            <label htmlFor={value}>{value}</label>
+          </div>
+        );
+      })}
+      {loading ? (
+        // TODO:Create loading animation/spinner or something
+        <h1>Loading</h1>
+      ) : (
+        <>
+          {!!preferredPoll.length ? (
+            <PollContainer>
+              <h1>{pollPreference}</h1>
+              {preferredPoll.map((poll) => (
+                <h3 key={poll.id}>{poll.id}</h3>
+              ))}
+            </PollContainer>
+          ) : (
+            <h1>Nothing to see here</h1>
+          )}
+        </>
+      )}
     </div>
   );
 };
+
+const PollContainer = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
