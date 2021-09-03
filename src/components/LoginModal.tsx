@@ -1,16 +1,16 @@
 import { FC, FormEvent, useState, MouseEvent, useEffect } from "react";
 import styled from "styled-components";
 import { UserDb, _getUsers } from "../DB/_DATA";
+import { User } from "../types/User";
 
 export const LoginModal: FC<{
   setErrors: (value: string[]) => unknown;
-  loginUser: (value: boolean) => unknown;
+  loginUser: (value: User) => unknown;
 }> = ({ setErrors, loginUser }) => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [register, setRegister] = useState(false);
   const [existingUsers, setExistingUsers] = useState<UserDb>({});
-  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
 
   useEffect(() => {
     // Grab all exisiting users on mount
@@ -22,7 +22,6 @@ export const LoginModal: FC<{
   const handleClick = (event: MouseEvent) => {
     event.preventDefault();
     setRegister((signUp) => !signUp);
-    setSelectedUserId(undefined);
     setUserName("");
     setPassword("");
   };
@@ -33,16 +32,16 @@ export const LoginModal: FC<{
     if (!register && !userName) {
       errorMessages.push("no userName");
     }
-    if (register && !selectedUserId) {
-      errorMessages.push("no selected user");
-    }
     if (!password) {
       errorMessages.push("no password");
     }
     if (!!errorMessages.length) {
       setErrors(errorMessages);
     } else {
-      loginUser(true);
+      loginUser({
+        id: userName,
+        name: userName,
+      });
     }
     setUserName("");
     setPassword("");
@@ -57,7 +56,7 @@ export const LoginModal: FC<{
             <Select
               id="userSelect"
               onChange={(e) => {
-                setSelectedUserId(e.currentTarget.value);
+                setUserName(e.currentTarget.value);
                 setPassword("");
               }}
             >
@@ -68,7 +67,7 @@ export const LoginModal: FC<{
                 </option>
               ))}
             </Select>
-            {selectedUserId && (
+            {userName && (
               <Input
                 type="password"
                 onChange={(e) => setPassword(e.currentTarget.value)}

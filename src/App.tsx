@@ -3,25 +3,38 @@ import { LoginModal, Navbar, Notification } from "./components";
 import styled from "styled-components";
 import { Route, Switch } from "react-router-dom";
 import { Home, LeaderBoard, NewPoll } from "./pages";
+import { User } from "./types/User";
 
 export const App: FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
 
   return (
     <Page>
-      <Navbar loggedIn={loggedIn} onLogoutClick={() => setLoggedIn(false)} />
+      <Navbar
+        loggedIn={!!loggedInUser}
+        onLogoutClick={() => setLoggedInUser(null)}
+      />
       {!!errors.length && (
         <Notification errors={errors} onClick={() => setErrors([])} />
       )}
-      {!loggedIn ? (
+      {!loggedInUser ? (
         <LoginModal
           setErrors={(messages) => setErrors(messages)}
-          loginUser={(loggedIn) => setLoggedIn(loggedIn)}
+          loginUser={(user) => setLoggedInUser(user)}
         />
       ) : (
         <Switch>
-          <Route exact path="/" component={Home} />
+          <Route
+            exact
+            path="/"
+            render={() => (
+              <Home
+                setErrors={(messages) => setErrors(messages)}
+                loggedInUser={loggedInUser}
+              />
+            )}
+          />
           <Route path="/leaderboard" component={LeaderBoard} />
           <Route path="/add" component={NewPoll} />
         </Switch>
