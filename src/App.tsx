@@ -7,13 +7,13 @@ import { User } from "./types/User";
 
 export const App: FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<User>();
 
   return (
     <Page>
       <Navbar
-        loggedIn={!!loggedInUser}
-        onLogoutClick={() => setLoggedInUser(null)}
+        user={loggedInUser}
+        onLogoutClick={() => setLoggedInUser(undefined)}
       />
       {!!errors.length && (
         <Notification errors={errors} onClick={() => setErrors([])} />

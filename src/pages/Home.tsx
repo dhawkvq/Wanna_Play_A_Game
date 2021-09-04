@@ -4,6 +4,7 @@ import { User } from "../types/User";
 import styled from "styled-components";
 import { organizePollsByUser } from "../utils";
 import { ValueOf } from "../types/ValueOf";
+import { Loading } from "../components";
 
 enum Preference {
   ANSWERED = "Answered",
@@ -19,7 +20,9 @@ export const Home: FC<{
 }> = ({ setErrors, loggedInUser }) => {
   const [polls, setPolls] = useState<QuestionsDb>({});
   const [loading, setLoading] = useState(false);
-  const [pollPreference, setPollPreference] = useState<ValueOfPreference>();
+  const [pollPreference, setPollPreference] = useState<ValueOfPreference>(
+    Preference.NOT_ANSWERED
+  );
 
   const getPolls = useCallback(async () => {
     try {
@@ -76,15 +79,17 @@ export const Home: FC<{
         );
       })}
       {loading ? (
-        // TODO:Create loading animation/spinner or something
-        <h1>Loading</h1>
+        <Loading />
       ) : (
         <>
           {!!preferredPoll.length ? (
             <PollContainer>
               <h1>{pollPreference}</h1>
               {preferredPoll.map((poll) => (
-                <h3 key={poll.id}>{poll.id}</h3>
+                <div key={poll.id}>
+                  <h3>{poll.id}</h3>
+                  <p>{new Date(poll.timestamp).toISOString()}</p>
+                </div>
               ))}
             </PollContainer>
           ) : (

@@ -39,8 +39,14 @@ export function formatQuestion({
   };
 }
 
-export const organizePollsByUser = (userId: string, polls: QuestionsDb) =>
-  Object.entries(polls).reduce(
+const compareTimeStamps = (time1: number, time2: number): number =>
+  new Date(time1) > new Date(time2) ? -1 : 1;
+
+export const organizePollsByUser = (
+  userId: string,
+  polls: QuestionsDb
+): SeperatedPolls => {
+  const { answeredPolls, unAnsweredPolls } = Object.entries(polls).reduce(
     (acc, [, poll]) => {
       const { optionOne, optionTwo } = poll;
       if (
@@ -58,3 +64,12 @@ export const organizePollsByUser = (userId: string, polls: QuestionsDb) =>
       unAnsweredPolls: [],
     } as SeperatedPolls
   );
+  return {
+    answeredPolls: answeredPolls.sort((a, b) =>
+      compareTimeStamps(a.timestamp, b.timestamp)
+    ),
+    unAnsweredPolls: unAnsweredPolls.sort((a, b) =>
+      compareTimeStamps(a.timestamp, b.timestamp)
+    ),
+  };
+};
