@@ -2,6 +2,7 @@ import { FC, FormEvent, useState, MouseEvent, useEffect } from "react";
 import styled from "styled-components";
 import { UserDb, _getUsers } from "../DB/_DATA";
 import { User } from "../types/User";
+import { Button as SubmitButton } from "./Button";
 
 export const LoginModal: FC<{
   setErrors: (value: string[]) => unknown;
@@ -139,19 +140,6 @@ const LoginForm = styled.form`
   input {
     margin-bottom: 10px;
   }
-`;
-
-const SubmitButton = styled.button`
-  background-color: #6262ff;
-  padding: 10px 30px;
-  border-color: #00008b;
-  border: 1px solid;
-  border-radius: 5px;
-  color: white;
-  margin: 20px 0;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
 `;
 
 const InlineButton = styled.button`
