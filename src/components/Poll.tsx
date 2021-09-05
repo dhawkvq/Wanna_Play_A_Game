@@ -1,24 +1,24 @@
 import { FC, useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router";
+import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
 import { Button } from ".";
-import { getQuestionById, getUserById } from "../DB/_DATA";
+import { getQuestionById, getUserById, _saveQuestionAnswer } from "../DB/_DATA";
 import { Question } from "../types/Question";
 import { User } from "../types/User";
 import { Loading } from "./Loading";
-
-const isError = (error: any): error is Error =>
-  "message" in error && error instanceof TypeError;
+import { isError } from "../utils";
 
 export const Poll: FC<{
   setErrors: (value: string[]) => unknown;
-}> = ({ setErrors }) => {
+  currentUser: User;
+}> = ({ setErrors, currentUser }) => {
+  const history = useHistory();
   const { question_id }: { question_id: string } = useParams();
   const [poll, setPoll] = useState<Question>({} as Question);
   const [author, setAuthor] = useState<User>({} as User);
   const [loading, setLoading] = useState(false);
   const [selectedOption, setSelectedOption] =
-    useState<Question["optionOne" | "optionTwo"]["text"]>();
+    useState<keyof Pick<Question, "optionOne" | "optionTwo">>();
 
   const getQuestionAndAuthor = useCallback(
     async (id: string) => {
@@ -45,6 +45,24 @@ export const Poll: FC<{
     }
   }, [question_id, getQuestionAndAuthor]);
 
+  const saveAnswer = async () => {
+    setLoading(true);
+    try {
+      await _saveQuestionAnswer({
+        userId: currentUser.id,
+        qid: poll.id,
+        option: selectedOption!,
+      });
+      history.push("/");
+    } catch (error) {
+      if (isError(error)) {
+        setErrors([error.message]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const { optionOne, optionTwo } = poll;
 
   return loading ? (
@@ -62,41 +80,32 @@ export const Poll: FC<{
       </div>
       <h1>Would you rather</h1>
       <OptionOne
-        selected={selectedOption === optionOne?.text}
+        selected={selectedOption === "optionOne"}
         buttonText={optionOne?.text}
         onClick={() =>
           setSelectedOption((option) =>
-            option === optionOne?.text ? undefined : optionOne?.text
+            option === "optionOne" ? undefined : "optionOne"
           )
         }
       />
       <b style={{ margin: "15px 0" }}>OR</b>
       <OptionTwo
-        selected={selectedOption === optionTwo?.text}
+        selected={selectedOption === "optionTwo"}
         buttonText={optionTwo?.text}
         onClick={() =>
           setSelectedOption((option) =>
-            option === optionTwo?.text ? undefined : optionTwo?.text
+            option === "optionTwo" ? undefined : "optionTwo"
           )
         }
       />
-      <b style={{ fontSize: 80 }}>?</b>
+      {selectedOption ? (
+        <SubmitButton buttonText="Submit" onClick={saveAnswer} />
+      ) : (
+        <b style={{ fontSize: 80 }}>?</b>
+      )}
     </PollBox>
   );
 };
-
-const PollBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 300px;
-  height: 400px;
-  border: 2px dashed blue;
-
-  button {
-    margin: 0 20px;
-  }
-`;
 
 const OptionOne = styled(Button)<{ selected?: boolean }>`
   background-color: ${({ selected }) => (selected ? "red" : "white")};
@@ -114,4 +123,22 @@ const OptionOne = styled(Button)<{ selected?: boolean }>`
 const OptionTwo = styled(OptionOne)<{ selected?: boolean }>`
   border-color: blue;
   background-color: ${({ selected }) => (selected ? "blue" : "white")};
+`;
+
+const PollBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  padding-bottom: 30px;
+  border: 2px dashed blue;
+
+  ${OptionOne},
+  ${OptionTwo} {
+    margin: 0 20px 0 20px;
+  }
+`;
+
+const SubmitButton = styled(Button)`
+  margin-top: 40px;
 `;

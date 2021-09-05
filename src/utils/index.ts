@@ -73,3 +73,6 @@ export const organizePollsByUser = (
     ),
   };
 };
+
+export const isError = (error: any): error is Error =>
+  "message" in error && error instanceof TypeError;

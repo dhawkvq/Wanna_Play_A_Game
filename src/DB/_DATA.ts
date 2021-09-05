@@ -34,7 +34,7 @@ export let users: UserDb = {
     id: "johndoe",
     name: "John Doe",
     avatarURL:
-      "https://www.socialketchup.in/wp-content/uploads/2020/05/fi-vill-JOHN-DOE.jpg",
+      "https://static.wikia.nocookie.net/villains/images/4/4a/Kevin_Spacey_John_Doe_Se7en.jpeg/revision/latest/top-crop/width/360/height/360?cb=20171230134058",
     answers: {
       xj352vofupe1dqz9emx13r: "optionOne",
       vthrdm985a262al8qx3do: "optionTwo",
@@ -187,23 +187,23 @@ export function _saveQuestion(question: NewQuestion): Promise<Question> {
 }
 
 export function _saveQuestionAnswer({
-  authorId,
+  userId,
   qid,
   option,
 }: {
-  authorId: string;
+  userId: string;
   qid: string;
   option: "optionOne" | "optionTwo";
 }): Promise<void> {
   return new Promise((res) => {
-    const author = users[authorId];
+    const author = users[userId];
     const existingQuestion = questions[qid];
     const currentOption = existingQuestion[option];
 
     setTimeout(() => {
       users = {
         ...users,
-        [authorId]: {
+        [userId]: {
           ...author,
           answers: {
             ...author.answers,
@@ -218,7 +218,7 @@ export function _saveQuestionAnswer({
           ...existingQuestion,
           [option]: {
             ...currentOption,
-            votes: [...currentOption.votes, authorId],
+            votes: [...currentOption.votes, userId],
           },
         },
       };

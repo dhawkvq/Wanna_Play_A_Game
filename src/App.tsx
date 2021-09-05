@@ -39,7 +39,12 @@ export const App: FC = () => {
           <Route path="/add" component={NewPoll} />
           <Route
             path="/questions/:question_id"
-            render={() => <Poll setErrors={(errors) => setErrors(errors)} />}
+            render={() => (
+              <Poll
+                setErrors={(errors) => setErrors(errors)}
+                currentUser={loggedInUser}
+              />
+            )}
           />
         </Switch>
       )}
