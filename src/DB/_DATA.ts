@@ -10,7 +10,7 @@ export let users: UserDb = {
   sarahedo: {
     id: "sarahedo",
     name: "Sarah Edo",
-    avatarURL: "",
+    avatarURL: "https://miro.medium.com/fit/c/1360/1360/0*uKLd7KtYbYr-ZRbQ.",
     answers: {
       "8xf0y6ziyjabvozdd253nd": "optionOne",
       "6ni6ok3ym7mf1p33lnez": "optionTwo",
@@ -22,7 +22,8 @@ export let users: UserDb = {
   tylermcginnis: {
     id: "tylermcginnis",
     name: "Tyler McGinnis",
-    avatarURL: "",
+    avatarURL:
+      "https://pbs.twimg.com/profile_images/1428205319616798721/xmr7q976_400x400.jpg",
     answers: {
       vthrdm985a262al8qx3do: "optionOne",
       xj352vofupe1dqz9emx13r: "optionTwo",
@@ -32,7 +33,8 @@ export let users: UserDb = {
   johndoe: {
     id: "johndoe",
     name: "John Doe",
-    avatarURL: "",
+    avatarURL:
+      "https://www.socialketchup.in/wp-content/uploads/2020/05/fi-vill-JOHN-DOE.jpg",
     answers: {
       xj352vofupe1dqz9emx13r: "optionOne",
       vthrdm985a262al8qx3do: "optionTwo",
@@ -134,6 +136,29 @@ export function _getQuestions(): Promise<QuestionsDb> {
     setTimeout(() => res({ ...questions }), 1000);
   });
 }
+
+export const getQuestionById = async (id: string): Promise<Question> => {
+  return new Promise((res, rej) => {
+    const questionFound = questions[id];
+    setTimeout(
+      () =>
+        questionFound
+          ? res(questionFound)
+          : rej(new Error("question not found")),
+      1000
+    );
+  });
+};
+
+export const getUserById = async (id: string): Promise<User> => {
+  return new Promise((res, rej) => {
+    const userFound = users[id];
+    setTimeout(
+      () => (userFound ? res(userFound) : rej(new Error("user not found"))),
+      1000
+    );
+  });
+};
 
 export function _saveQuestion(question: NewQuestion): Promise<Question> {
   return new Promise((res) => {
