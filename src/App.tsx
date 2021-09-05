@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { LoginModal, Navbar, Notification } from "./components";
+import { LoginModal, Navbar, Notification, Poll } from "./components";
 import styled from "styled-components";
 import { Route, Switch } from "react-router-dom";
 import { Home, LeaderBoard, NewPoll } from "./pages";
@@ -37,6 +37,10 @@ export const App: FC = () => {
           />
           <Route path="/leaderboard" component={LeaderBoard} />
           <Route path="/add" component={NewPoll} />
+          <Route
+            path="/questions/:question_id"
+            render={() => <Poll setErrors={(errors) => setErrors(errors)} />}
+          />
         </Switch>
       )}
     </Page>

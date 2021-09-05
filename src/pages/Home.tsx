@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { organizePollsByUser } from "../utils";
 import { ValueOf } from "../types/ValueOf";
 import { Loading } from "../components";
+import { Link } from "react-router-dom";
 
 enum Preference {
   ANSWERED = "Answered",
@@ -86,10 +87,12 @@ export const Home: FC<{
             <PollContainer>
               <h1>{pollPreference}</h1>
               {preferredPoll.map((poll) => (
-                <div key={poll.id}>
-                  <h3>{poll.id}</h3>
-                  <p>{new Date(poll.timestamp).toISOString()}</p>
-                </div>
+                <Link key={poll.id} to={`questions/${poll.id}`}>
+                  <div>
+                    <h3>{poll.id}</h3>
+                    <p>{new Date(poll.timestamp).toISOString()}</p>
+                  </div>
+                </Link>
               ))}
             </PollContainer>
           ) : (
