@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { AllUsersReducer } from "./reducers/allAppUsers";
 import { currentUserReducer } from "./reducers/currentUserReducer";
 import { errorReducer } from "./reducers/errorReducer";
 
@@ -6,6 +7,7 @@ export const reduxStore = configureStore({
   reducer: {
     error: errorReducer,
     currentUser: currentUserReducer,
+    allUsers: AllUsersReducer,
   },
 });
 
