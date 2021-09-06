@@ -3,11 +3,11 @@ import { NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { Button } from "./Button";
 import { User } from "../types/User";
+import { useAppDispatch } from "../hooks";
+import { logout } from "../redux/reducers/currentUserReducer";
 
-export const Navbar: FC<{ user?: User; onLogoutClick?(): unknown }> = ({
-  user,
-  onLogoutClick,
-}) => {
+export const Navbar: FC<{ user?: User }> = ({ user }) => {
+  const dispatch = useAppDispatch();
   return (
     <Bar>
       {!!user && (
@@ -22,7 +22,7 @@ export const Navbar: FC<{ user?: User; onLogoutClick?(): unknown }> = ({
             </NavLink>
             <NavLink to="/leaderboard">LeaderBoard</NavLink>
             <NavLink to="/">Home</NavLink>
-            <Button onClick={onLogoutClick} buttonText="Log Out" />
+            <Button onClick={() => dispatch(logout())} buttonText="Log Out" />
           </div>
         </>
       )}

@@ -3,26 +3,20 @@ import { LoginModal, Navbar, Notification, Poll } from "./components";
 import styled from "styled-components";
 import { Route, Switch } from "react-router-dom";
 import { Home, LeaderBoard, NewPoll } from "./pages";
-import { User } from "./types/User";
+import { useReduxState } from "./hooks";
 
 export const App: FC = () => {
   const [errors, setErrors] = useState<string[]>([]);
-  const [loggedInUser, setLoggedInUser] = useState<User>();
+  const { currentUser } = useReduxState((state) => state);
 
   return (
     <Page>
-      <Navbar
-        user={loggedInUser}
-        onLogoutClick={() => setLoggedInUser(undefined)}
-      />
+      <Navbar user={currentUser.id ? currentUser : undefined} />
       {!!errors.length && (
         <Notification errors={errors} onClick={() => setErrors([])} />
       )}
-      {!loggedInUser ? (
-        <LoginModal
-          setErrors={(messages) => setErrors(messages)}
-          loginUser={(user) => setLoggedInUser(user)}
-        />
+      {!currentUser.id ? (
+        <LoginModal setErrors={(messages) => setErrors(messages)} />
       ) : (
         <Switch>
           <Route
@@ -31,7 +25,7 @@ export const App: FC = () => {
             render={() => (
               <Home
                 setErrors={(messages) => setErrors(messages)}
-                loggedInUser={loggedInUser}
+                loggedInUser={currentUser}
               />
             )}
           />
@@ -42,7 +36,7 @@ export const App: FC = () => {
             render={() => (
               <Poll
                 setErrors={(errors) => setErrors(errors)}
-                currentUser={loggedInUser}
+                currentUser={currentUser}
               />
             )}
           />
