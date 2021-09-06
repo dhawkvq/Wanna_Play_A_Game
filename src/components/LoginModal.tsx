@@ -1,51 +1,43 @@
-import { FC, FormEvent, useState, MouseEvent, useEffect } from "react";
+import { FC, FormEvent, useState, MouseEvent } from "react";
 import styled from "styled-components";
-import { UserDb, _getUsers } from "../DB/_DATA";
-import { User } from "../types/User";
+import { useAppDispatch, useReduxState } from "../hooks";
 import { Button as SubmitButton } from "./Button";
+import { login } from "../redux/reducers/currentUserReducer";
+import { addError } from "../redux/reducers/errorReducer";
 
-export const LoginModal: FC<{
-  setErrors: (value: string[]) => unknown;
-  loginUser: (value: User) => unknown;
-}> = ({ setErrors, loginUser }) => {
+export const LoginModal: FC = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [register, setRegister] = useState(false);
-  const [existingUsers, setExistingUsers] = useState<UserDb>({});
+  const existingUsers = useReduxState(({ allUsers }) => allUsers);
+  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    // Grab all exisiting users on mount
-    _getUsers()
-      .then((users) => setExistingUsers(users))
-      .catch((error) => setErrors([error.message]));
-  }, [setErrors]);
-
-  const handleClick = (event: MouseEvent) => {
-    event.preventDefault();
-    setRegister((signUp) => !signUp);
+  const clearFields = () => {
     setUserName("");
     setPassword("");
   };
 
+  const handleClick = (event: MouseEvent) => {
+    event.preventDefault();
+    setRegister((signUp) => !signUp);
+    clearFields();
+  };
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    let errorMessages = [];
+    let errorMessages: Error[] = [];
     if (!register && !userName) {
-      errorMessages.push("no userName");
+      errorMessages.push(new Error("no userName"));
     }
     if (!password) {
-      errorMessages.push("no password");
+      errorMessages.push(new Error("no password"));
     }
     if (!!errorMessages.length) {
-      setErrors(errorMessages);
+      addError(errorMessages);
+      clearFields();
     } else {
-      loginUser({
-        id: userName,
-        name: userName,
-      });
+      dispatch(login(userName)).then(() => clearFields());
     }
-    setUserName("");
-    setPassword("");
   };
 
   return (

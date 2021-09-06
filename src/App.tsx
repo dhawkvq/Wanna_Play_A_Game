@@ -16,7 +16,7 @@ export const App: FC = () => {
         <Notification errors={errors} onClick={() => setErrors([])} />
       )}
       {!currentUser.id ? (
-        <LoginModal setErrors={(messages) => setErrors(messages)} />
+        <LoginModal />
       ) : (
         <Switch>
           <Route
