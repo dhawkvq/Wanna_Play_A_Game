@@ -1,49 +1,26 @@
-import { FC, useEffect, useState, useCallback } from "react";
-import { QuestionsDb, _getQuestions } from "../DB/_DATA";
-import { User } from "../types/User";
+import { FC, useState } from "react";
 import styled from "styled-components";
 import { organizePollsByUser } from "../utils";
 import { ValueOf } from "../types/ValueOf";
-import { Loading } from "../components";
+import { Poll } from "../components";
 import { Link } from "react-router-dom";
+import { useReduxState } from "../hooks";
 
 enum Preference {
   ANSWERED = "Answered",
   NOT_ANSWERED = "Not Answered",
-  NONE = "None",
 }
 
-type ValueOfPreference = ValueOf<Preference>;
-
-export const Home: FC<{
-  setErrors: React.Dispatch<React.SetStateAction<string[]>>;
-  loggedInUser: User;
-}> = ({ setErrors, loggedInUser }) => {
-  const [polls, setPolls] = useState<QuestionsDb>({});
-  const [loading, setLoading] = useState(false);
-  const [pollPreference, setPollPreference] = useState<ValueOfPreference>(
+export const Home: FC = () => {
+  const [pollPreference, setPollPreference] = useState<ValueOf<Preference>>(
     Preference.NOT_ANSWERED
   );
-
-  const getPolls = useCallback(async () => {
-    try {
-      setLoading(true);
-      const polls = await _getQuestions();
-      setPolls(polls);
-    } catch (error) {
-      const newError = error as Error;
-      setErrors((curErrors) => [...curErrors, newError.message]);
-    } finally {
-      setLoading(false);
-    }
-  }, [setLoading, setErrors]);
-
-  useEffect(() => {
-    getPolls();
-  }, [getPolls]);
+  const [polls, currentUser] = useReduxState(
+    ({ allQuestions, currentUser }) => [allQuestions, currentUser]
+  );
 
   const { answeredPolls, unAnsweredPolls } = organizePollsByUser(
-    loggedInUser.id,
+    currentUser.id,
     polls
   );
 
@@ -55,15 +32,7 @@ export const Home: FC<{
       : [];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flex: 1,
-        flexDirection: "column",
-        width: "100%",
-        marginTop: 70,
-      }}
-    >
+    <HomePage>
       <h1>Which Poll would you like to view?</h1>
       {Object.entries(Preference).map(([key, value]) => {
         return (
@@ -75,38 +44,41 @@ export const Home: FC<{
               onChange={(e) => setPollPreference(e.currentTarget.value)}
               checked={pollPreference === value}
             />
-            <label htmlFor={value}>{value}</label>
+            <label htmlFor={key}>{value}</label>
           </div>
         );
       })}
-      {loading ? (
-        <Loading />
-      ) : (
-        <>
-          {!!preferredPoll.length ? (
-            <PollContainer>
-              <h1>{pollPreference}</h1>
-              {preferredPoll.map((poll) => (
-                <Link key={poll.id} to={`questions/${poll.id}`}>
-                  <div>
-                    <h3>{poll.id}</h3>
-                    <p>{new Date(poll.timestamp).toISOString()}</p>
-                  </div>
-                </Link>
-              ))}
-            </PollContainer>
-          ) : (
-            <h1>Nothing to see here</h1>
-          )}
-        </>
+
+      {!!preferredPoll.length && (
+        <PollContainer>
+          {preferredPoll.map((poll) => (
+            <Link key={poll.id} to={`questions/${poll.id}`}>
+              <Poll questionKey={poll.id} />
+            </Link>
+          ))}
+        </PollContainer>
       )}
-    </div>
+    </HomePage>
   );
 };
 
 const PollContainer = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+
+  a {
+    text-decoration: none;
+    color: black;
+    margin: 0 10px;
+  }
+`;
+
+const HomePage = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 70px;
 `;
