@@ -1,66 +1,39 @@
-import { FC, useEffect, useState, useCallback } from "react";
+import { FC, useState } from "react";
 import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
 import { Button } from ".";
-import { getQuestionById, getUserById, _saveQuestionAnswer } from "../DB/_DATA";
 import { Question } from "../types/Question";
-import { User } from "../types/User";
 import { Loading } from "./Loading";
-import { isError } from "../utils";
+import { useReduxState, useAppDispatch } from "../hooks";
+import { saveAnswer } from "../redux/reducers/questions";
 
-export const Poll: FC<{
-  setErrors: (value: string[]) => unknown;
-  currentUser: User;
-}> = ({ setErrors, currentUser }) => {
+export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
+  const dispatch = useAppDispatch();
   const history = useHistory();
   const { question_id }: { question_id: string } = useParams();
-  const [poll, setPoll] = useState<Question>({} as Question);
-  const [author, setAuthor] = useState<User>({} as User);
-  const [loading, setLoading] = useState(false);
+  const pollKey = questionKey ?? question_id;
+  const { currentUser, poll, author, loading } = useReduxState(
+    ({ currentUser, allQuestions, allUsers, loading }) => {
+      const poll = allQuestions[pollKey];
+      return {
+        currentUser,
+        poll,
+        author: allUsers[poll.authorId],
+        loading,
+      };
+    }
+  );
   const [selectedOption, setSelectedOption] =
     useState<keyof Pick<Question, "optionOne" | "optionTwo">>();
 
-  const getQuestionAndAuthor = useCallback(
-    async (id: string) => {
-      setLoading(true);
-      try {
-        const question = await getQuestionById(id);
-        const author = await getUserById(question.authorId);
-        setPoll(question);
-        setAuthor(author);
-      } catch (error) {
-        if (isError(error)) {
-          setErrors([error.message]);
-        }
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setPoll, setErrors]
-  );
-
-  useEffect(() => {
-    if (question_id) {
-      getQuestionAndAuthor(question_id);
-    }
-  }, [question_id, getQuestionAndAuthor]);
-
-  const saveAnswer = async () => {
-    setLoading(true);
-    try {
-      await _saveQuestionAnswer({
+  const handleAnswer = () => {
+    dispatch(
+      saveAnswer({
         userId: currentUser.id,
-        qid: poll.id,
+        questionId: poll.id,
         option: selectedOption!,
-      });
-      history.push("/");
-    } catch (error) {
-      if (isError(error)) {
-        setErrors([error.message]);
-      }
-    } finally {
-      setLoading(false);
-    }
+      })
+    ).then(() => history.push("/"));
   };
 
   const { optionOne, optionTwo } = poll;
@@ -99,7 +72,7 @@ export const Poll: FC<{
         }
       />
       {selectedOption ? (
-        <SubmitButton buttonText="Submit" onClick={saveAnswer} />
+        <SubmitButton buttonText="Submit" onClick={handleAnswer} />
       ) : (
         <b style={{ fontSize: 80 }}>?</b>
       )}
