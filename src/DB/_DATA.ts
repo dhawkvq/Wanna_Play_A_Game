@@ -34,7 +34,7 @@ export let users: UserDb = {
     id: "johndoe",
     name: "John Doe",
     avatarURL:
-      "https://static.wikia.nocookie.net/villains/images/4/4a/Kevin_Spacey_John_Doe_Se7en.jpeg/revision/latest/top-crop/width/360/height/360?cb=20171230134058",
+      "https://a1cf74336522e87f135f-2f21ace9a6cf0052456644b80fa06d4f.ssl.cf2.rackcdn.com/images/characters_thumb/p-se7en-brad-pitt.jpg",
     answers: {
       xj352vofupe1dqz9emx13r: "optionOne",
       vthrdm985a262al8qx3do: "optionTwo",
@@ -154,7 +154,7 @@ export const getUserById = async (id: string): Promise<User> => {
   return new Promise((res, rej) => {
     const userFound = users[id];
     setTimeout(
-      () => (userFound ? res(userFound) : rej(new Error("user not found"))),
+      () => (userFound ? res(userFound) : rej("user not found")),
       1000
     );
   });
@@ -196,7 +196,7 @@ export function _saveQuestionAnswer({
   option: "optionOne" | "optionTwo";
 }): Promise<void> {
   return new Promise((res) => {
-    const author = users[userId];
+    const currentUser = users[userId];
     const existingQuestion = questions[qid];
     const currentOption = existingQuestion[option];
 
@@ -204,9 +204,9 @@ export function _saveQuestionAnswer({
       users = {
         ...users,
         [userId]: {
-          ...author,
+          ...currentUser,
           answers: {
-            ...author.answers,
+            ...currentUser.answers,
             [qid]: option,
           },
         },

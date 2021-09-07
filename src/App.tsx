@@ -19,27 +19,10 @@ export const App: FC = () => {
         <LoginModal />
       ) : (
         <Switch>
-          <Route
-            exact
-            path="/"
-            render={() => (
-              <Home
-                setErrors={(messages) => setErrors(messages)}
-                loggedInUser={currentUser}
-              />
-            )}
-          />
+          <Route exact path="/" component={Home} />
           <Route path="/leaderboard" component={LeaderBoard} />
           <Route path="/add" component={NewPoll} />
-          <Route
-            path="/questions/:question_id"
-            render={() => (
-              <Poll
-                setErrors={(errors) => setErrors(errors)}
-                currentUser={currentUser}
-              />
-            )}
-          />
+          <Route path="/questions/:question_id" component={Poll} />
         </Switch>
       )}
     </Page>
