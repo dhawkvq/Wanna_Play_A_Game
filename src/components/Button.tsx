@@ -9,8 +9,9 @@ export const Button: FC<{
   buttonText?: string;
   onClick?(): unknown;
   className?: string;
-}> = ({ buttonText = "Submit", onClick, className }) => (
-  <ThemedButton onClick={onClick} className={className}>
+  disabled?: boolean;
+}> = ({ buttonText = "Submit", onClick, disabled = false, className }) => (
+  <ThemedButton onClick={onClick} className={className} disabled={disabled}>
     {buttonText}
   </ThemedButton>
 );

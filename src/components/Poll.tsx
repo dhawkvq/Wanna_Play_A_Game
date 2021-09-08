@@ -23,8 +23,15 @@ export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
       };
     }
   );
-  const [selectedOption, setSelectedOption] =
-    useState<keyof Pick<Question, "optionOne" | "optionTwo">>();
+  const usersSelection = poll.optionOne.votes.includes(currentUser.id)
+    ? "optionOne"
+    : poll.optionTwo.votes.includes(currentUser.id)
+    ? "optionTwo"
+    : undefined;
+
+  const [selectedOption, setSelectedOption] = useState<
+    keyof Pick<Question, "optionOne" | "optionTwo"> | undefined
+  >(usersSelection);
 
   const handleAnswer = () => {
     dispatch(
@@ -37,6 +44,8 @@ export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
   };
 
   const { optionOne, optionTwo } = poll;
+
+  const buttonsDisabled = !!usersSelection;
 
   return loading ? (
     <Loading />
@@ -55,6 +64,7 @@ export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
       <OptionOne
         selected={selectedOption === "optionOne"}
         buttonText={optionOne?.text}
+        disabled={buttonsDisabled}
         onClick={() =>
           setSelectedOption((option) =>
             option === "optionOne" ? undefined : "optionOne"
@@ -65,13 +75,14 @@ export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
       <OptionTwo
         selected={selectedOption === "optionTwo"}
         buttonText={optionTwo?.text}
+        disabled={buttonsDisabled}
         onClick={() =>
           setSelectedOption((option) =>
             option === "optionTwo" ? undefined : "optionTwo"
           )
         }
       />
-      {selectedOption ? (
+      {selectedOption && !usersSelection ? (
         <SubmitButton buttonText="Submit" onClick={handleAnswer} />
       ) : (
         <b style={{ fontSize: 80 }}>?</b>
