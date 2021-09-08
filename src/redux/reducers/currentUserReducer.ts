@@ -9,7 +9,8 @@ export const login = createAsyncThunk(
     try {
       return await getUserById(id);
     } catch (error) {
-      dispatch(addError([error as Error]));
+      const castError = error as Error;
+      dispatch(addError([castError.message]));
       throw error;
     }
   }

@@ -7,7 +7,7 @@ import { questionsReducer } from "./reducers/questions";
 
 export const reduxStore = configureStore({
   reducer: {
-    error: errorReducer,
+    errors: errorReducer,
     currentUser: currentUserReducer,
     allUsers: AllUsersReducer,
     allQuestions: questionsReducer,

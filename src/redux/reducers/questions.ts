@@ -20,7 +20,8 @@ export const saveAnswer = createAsyncThunk(
       await _saveQuestionAnswer({ userId, qid: questionId, option });
       return args;
     } catch (error) {
-      dispatch(addError([error as Error]));
+      const castError = error as Error;
+      dispatch(addError([castError.message]));
       throw error;
     } finally {
       dispatch(setLoadingState(false));

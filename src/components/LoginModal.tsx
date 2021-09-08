@@ -25,15 +25,15 @@ export const LoginModal: FC = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    let errorMessages: Error[] = [];
+    let errorMessages: string[] = [];
     if (!register && !userName) {
-      errorMessages.push(new Error("no userName"));
+      errorMessages.push("no userName");
     }
     if (!password) {
-      errorMessages.push(new Error("no password"));
+      errorMessages.push("no password");
     }
     if (!!errorMessages.length) {
-      addError(errorMessages);
+      dispatch(addError(errorMessages));
       clearFields();
     } else {
       dispatch(login(userName)).then(() => clearFields());
