@@ -1,74 +1,8 @@
 import { FC } from "react";
+import styled from "styled-components";
 import { useReduxState } from "../hooks";
 import { User } from "../types/User";
-
-/**
-    The Leaderboard is available at/leaderboard.
-    Each entry on the leaderboard contains the following:
-    the user’s name;
-    the user’s picture;
-    the number of questions the user asked; and
-    the number of questions the user answered.
-    Users are ordered in descending order based on the sum of the number 
-    of questions they’ve answered and the number of questions they’ve asked.
- */
-
-const UserStats: FC<{ user: User }> = ({ user }) => (
-  <div
-    style={{
-      display: "flex",
-      flex: 1,
-      width: "70%",
-      border: "1px dashed blue",
-      margin: "15px 0",
-      alignContent: "center",
-    }}
-  >
-    {/* users picture/ name */}
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        color: "black",
-        fontWeight: "bold",
-      }}
-    >
-      <div style={{ height: 100, width: 100 }}>
-        <img
-          src={user.avatarURL}
-          alt="avatar"
-          height="100%"
-          width="100%"
-          style={{ borderRadius: 8 }}
-        />
-      </div>
-      {user.name}
-    </div>
-    {/* questions asked */}
-    <div
-      style={{
-        marginLeft: 10,
-        borderLeft: "1px solid black",
-        flex: 1,
-      }}
-    >
-      {user.questions?.length ?? 0}
-    </div>
-    {/* questions answered */}
-    <div
-      style={{
-        marginLeft: 10,
-        borderLeft: "1px solid black",
-        minHeight: "100%",
-        flex: 1,
-        textAlign: "center",
-      }}
-    >
-      {Object.keys(user.answers ?? {}).length}
-    </div>
-  </div>
-);
+import { UserStats } from "../components/UserStats";
 
 export const LeaderBoard: FC = () => {
   const currentUsers = useReduxState(({ allUsers }) => allUsers);
@@ -80,7 +14,7 @@ export const LeaderBoard: FC = () => {
   };
 
   const rankedUsers = Object.entries(currentUsers).sort(
-    ([aKey, aUser], [bKey, bUser]) => {
+    ([, aUser], [, bUser]) => {
       const userATotal = getUserTotal(aUser);
       const userBTotal = getUserTotal(bUser);
       return userATotal > userBTotal ? -1 : 1;
@@ -88,45 +22,60 @@ export const LeaderBoard: FC = () => {
   );
 
   return (
-    <div
-      style={{
-        border: "1px dashed red",
-        minWidth: "100%",
-        flex: 1,
-        padding: "110px 25px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <h1>LeaderBoard!</h1>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          alignItems: "center",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flex: 1,
-            width: "70%",
-            border: "1px dashed blue",
-            margin: "15px 0",
-            alignContent: "center",
-            minHeight: 30,
-          }}
-        >
-          <div style={{ flex: 1 }} />
-          <div style={{ flex: 2 }}>answers</div>
-          <div style={{ flex: 1 }}>questions</div>
-        </div>
-        {rankedUsers.map(([key, user]) => (
-          <UserStats key={key} user={user} />
+    <Board>
+      <PageTitle>LeaderBoard</PageTitle>
+      <Divider />
+      <LeaderBox>
+        <TableHeader>
+          <TableDescription />
+          <TableDescription>Answers</TableDescription>
+          <TableDescription>Questions</TableDescription>
+        </TableHeader>
+        {rankedUsers.map(([key, user], idx) => (
+          <UserStats key={key} user={user} place={idx + 1} />
         ))}
-      </div>
-    </div>
+      </LeaderBox>
+    </Board>
   );
 };
+
+const Board = styled.div`
+  min-width: 100%;
+  flex: 1;
+  padding: 110px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const PageTitle = styled.h1`
+  align-self: flex-start;
+  margin: 20px 0 5px 30px;
+`;
+
+const Divider = styled.div`
+  border: 1px solid #8b8b8b;
+  width: 95%;
+  margin-bottom: 20px;
+`;
+
+const LeaderBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+`;
+
+const TableHeader = styled.div`
+  display: flex;
+  flex: 1;
+  width: 70%;
+  margin-top: 10px;
+  align-content: center;
+  min-height: 30px;
+  font-weight: bold;
+`;
+
+const TableDescription = styled.div`
+  flex: 1;
+`;
