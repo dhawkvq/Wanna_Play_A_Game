@@ -2,6 +2,8 @@ import { User } from "../types/User";
 import { Question } from "../types/Question";
 import { NewQuestion } from "../utils";
 import { formatQuestion } from "../utils";
+import { ValueOf } from "../types/ValueOf";
+import { Answer } from "../types/Answer";
 
 export type UserDb = Record<string, User>;
 export type QuestionsDb = Record<string, Question>;
@@ -160,6 +162,64 @@ export const getUserById = async (id: string): Promise<User> => {
   });
 };
 
+type FieldUpdate = keyof Omit<User, "id">;
+type DataUpdates = ValueOf<Omit<User, "id">>;
+
+const isNameOrAvatarField = (
+  field: FieldUpdate,
+  data: DataUpdates
+): data is string =>
+  (field === "name" || field === "avatarURL") && typeof data === "string";
+
+const isQuestionsField = (
+  field: FieldUpdate,
+  data: DataUpdates
+): data is string[] => field === "questions" && Array.isArray(data);
+
+const isAnswersField = (
+  field: FieldUpdate,
+  data: DataUpdates
+): data is Answer => {
+  if (typeof data !== "object" || Array.isArray(data)) {
+    return false;
+  }
+  return field === "answers";
+};
+
+const assertValidDataForField = (
+  field: FieldUpdate,
+  data: DataUpdates
+): boolean =>
+  isAnswersField(field, data) ||
+  isQuestionsField(field, data) ||
+  isNameOrAvatarField(field, data);
+
+export const updateUserById = async (
+  id: string,
+  fieldToUpdate: FieldUpdate,
+  data: DataUpdates
+): Promise<User> => {
+  return new Promise((res, rej) => {
+    const userToUpdate = users[id];
+    if (!userToUpdate) {
+      rej("user not found");
+    }
+    if (!assertValidDataForField(fieldToUpdate, data)) {
+      rej("wrong data type passed in for fieldToUpdate");
+    }
+
+    users = {
+      ...users,
+      [id]: {
+        ...userToUpdate,
+        [fieldToUpdate]: data,
+      },
+    };
+
+    setTimeout(() => res(users[id]), 1000);
+  });
+};
+
 export function _saveQuestion(question: NewQuestion): Promise<Question> {
   return new Promise((res) => {
     const { authorId } = question;
@@ -167,22 +227,20 @@ export function _saveQuestion(question: NewQuestion): Promise<Question> {
     const author = users[authorId];
     const previousAuthorQuestions = author.questions ?? [];
 
-    setTimeout(() => {
-      questions = {
-        ...questions,
-        [formattedQuestion.id]: formattedQuestion,
-      };
+    questions = {
+      ...questions,
+      [formattedQuestion.id]: formattedQuestion,
+    };
 
-      users = {
-        ...users,
-        [authorId]: {
-          ...author,
-          questions: [...previousAuthorQuestions, formattedQuestion.id],
-        },
-      };
+    users = {
+      ...users,
+      [authorId]: {
+        ...author,
+        questions: [...previousAuthorQuestions, formattedQuestion.id],
+      },
+    };
 
-      res(formattedQuestion);
-    }, 1000);
+    setTimeout(() => res(formattedQuestion), 1000);
   });
 }
 
