@@ -1,15 +1,16 @@
 import { FC, useState } from "react";
-import { useHistory, useParams } from "react-router";
+import { useParams, useLocation } from "react-router";
 import styled from "styled-components";
 import { Button } from ".";
 import { Question } from "../types/Question";
 import { Loading } from "./Loading";
 import { useReduxState, useAppDispatch } from "../hooks";
 import { saveAnswer } from "../redux/reducers/questions";
+import { PollBreakDown } from "./PollBreakDown";
 
 export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
   const dispatch = useAppDispatch();
-  const history = useHistory();
+  const { pathname } = useLocation();
   const { question_id }: { question_id: string } = useParams();
   const pollKey = questionKey ?? question_id;
   const { currentUser, poll, author, loading } = useReduxState(
@@ -40,10 +41,12 @@ export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
         questionId: poll.id,
         option: selectedOption!,
       })
-    ).then(() => history.push("/"));
+    );
   };
 
   const { optionOne, optionTwo } = poll;
+
+  const totalVotes = optionOne.votes.length + optionTwo.votes.length;
 
   const buttonsDisabled = !!usersSelection;
 
@@ -51,41 +54,90 @@ export const Poll: FC<{ questionKey?: string }> = ({ questionKey }) => {
     <Loading />
   ) : !poll ? (
     <h1>404 not found</h1>
+  ) : usersSelection && pathname !== "/" ? (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        width: "100%",
+      }}
+    >
+      <PollBreakDown
+        option={optionOne}
+        percentage={(optionOne.votes.length / totalVotes) * 100}
+      />
+      <PollBox>
+        <Wrapper>
+          <Avatar>
+            <img src={author.avatarURL} alt="avatar" />
+          </Avatar>
+          <h1>Would you rather</h1>
+          <OptionOne
+            selected={selectedOption === "optionOne"}
+            buttonText={optionOne?.text}
+            disabled={buttonsDisabled}
+            onClick={() =>
+              setSelectedOption((option) =>
+                option === "optionOne" ? undefined : "optionOne"
+              )
+            }
+          />
+          <b>OR</b>
+          <OptionTwo
+            selected={selectedOption === "optionTwo"}
+            buttonText={optionTwo?.text}
+            disabled={buttonsDisabled}
+            onClick={() =>
+              setSelectedOption((option) =>
+                option === "optionTwo" ? undefined : "optionTwo"
+              )
+            }
+          />
+        </Wrapper>
+        {selectedOption && !usersSelection ? (
+          <SubmitButton buttonText="Submit" onClick={handleAnswer} />
+        ) : (
+          <b id="bold">{usersSelection ? "✔" : "?"}</b>
+        )}
+      </PollBox>
+      <PollBreakDown
+        option={optionTwo}
+        percentage={(optionTwo.votes.length / totalVotes) * 100}
+      />
+    </div>
   ) : (
     <PollBox>
-      <div style={{ height: 100, width: 100 }}>
-        <img
-          src={author.avatarURL}
-          style={{ height: "100%", width: "100%", borderRadius: 50 }}
-          alt="avatar"
+      <Wrapper>
+        <Avatar>
+          <img src={author.avatarURL} alt="avatar" />
+        </Avatar>
+        <h1>Would you rather</h1>
+        <OptionOne
+          selected={selectedOption === "optionOne"}
+          buttonText={optionOne?.text}
+          disabled={buttonsDisabled}
+          onClick={() =>
+            setSelectedOption((option) =>
+              option === "optionOne" ? undefined : "optionOne"
+            )
+          }
         />
-      </div>
-      <h1>Would you rather</h1>
-      <OptionOne
-        selected={selectedOption === "optionOne"}
-        buttonText={optionOne?.text}
-        disabled={buttonsDisabled}
-        onClick={() =>
-          setSelectedOption((option) =>
-            option === "optionOne" ? undefined : "optionOne"
-          )
-        }
-      />
-      <b style={{ margin: "15px 0" }}>OR</b>
-      <OptionTwo
-        selected={selectedOption === "optionTwo"}
-        buttonText={optionTwo?.text}
-        disabled={buttonsDisabled}
-        onClick={() =>
-          setSelectedOption((option) =>
-            option === "optionTwo" ? undefined : "optionTwo"
-          )
-        }
-      />
+        <b>OR</b>
+        <OptionTwo
+          selected={selectedOption === "optionTwo"}
+          buttonText={optionTwo?.text}
+          disabled={buttonsDisabled}
+          onClick={() =>
+            setSelectedOption((option) =>
+              option === "optionTwo" ? undefined : "optionTwo"
+            )
+          }
+        />
+      </Wrapper>
       {selectedOption && !usersSelection ? (
         <SubmitButton buttonText="Submit" onClick={handleAnswer} />
       ) : (
-        <b style={{ fontSize: 80 }}>?</b>
+        <b id="bold">{usersSelection ? "✔" : "?"}</b>
       )}
     </PollBox>
   );
@@ -96,7 +148,7 @@ const OptionOne = styled(Button)<{ selected?: boolean }>`
   border: 2px solid;
   border-color: #ff6060;
   width: 80%;
-  color: black;
+  color: ${({ selected }) => (selected ? "white" : "black")};
   transition: all 0.5s ease;
 
   &:hover {
@@ -113,16 +165,49 @@ const PollBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   width: 300px;
   padding-bottom: 30px;
-  border: 2px dashed blue;
+  border: 2px solid gray;
+  border-radius: 8px;
+  min-height: 500px;
+  max-height: 550px;
+  margin-bottom: 20px;
+  overflow: auto;
 
   ${OptionOne},
   ${OptionTwo} {
     margin: 0 20px 0 20px;
   }
+
+  #bold {
+    font-size: 80px;
+  }
 `;
 
 const SubmitButton = styled(Button)`
   margin-top: 40px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+
+  b {
+    margin: 15px 0;
+  }
+`;
+
+const Avatar = styled.div`
+  height: 100px;
+  width: 100px;
+  margin-top: 20px;
+
+  img {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+  }
 `;

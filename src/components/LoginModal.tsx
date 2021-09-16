@@ -34,9 +34,8 @@ export const LoginModal: FC = () => {
     }
     if (!!errorMessages.length) {
       dispatch(addError(errorMessages));
-      clearFields();
     } else {
-      dispatch(login(userName)).then(() => clearFields());
+      dispatch(login(userName));
     }
   };
 
