@@ -34,20 +34,47 @@ export const Home: FC = () => {
   return (
     <HomePage>
       <h1>Which Poll would you like to view?</h1>
-      {Object.entries(Preference).map(([key, value]) => {
-        return (
-          <div key={key}>
-            <input
-              type="radio"
-              id={key}
-              value={value}
-              onChange={(e) => setPollPreference(e.currentTarget.value)}
-              checked={pollPreference === value}
-            />
-            <label htmlFor={key}>{value}</label>
-          </div>
-        );
-      })}
+      <div
+        style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}
+      >
+        {Object.entries(Preference).map(([key, value]) => {
+          const selected = pollPreference === value;
+          return (
+            <div
+              key={key}
+              style={{
+                border: "1px dashed blue",
+                fontSize: 30,
+                fontWeight: "bold",
+                margin: "0 10px",
+              }}
+            >
+              <input
+                type="hidden"
+                id={key}
+                value={value}
+                defaultChecked={selected}
+              />
+              <label
+                htmlFor={key}
+                onClick={() => setPollPreference(value)}
+                style={{
+                  cursor: "pointer",
+                  color:
+                    selected && pollPreference === Preference.ANSWERED
+                      ? "red"
+                      : selected && pollPreference === Preference.NOT_ANSWERED
+                      ? "green"
+                      : "black",
+                  textDecoration: selected ? "underline" : undefined,
+                }}
+              >
+                {value}
+              </label>
+            </div>
+          );
+        })}
+      </div>
 
       {!!preferredPoll.length && (
         <PollContainer>
@@ -67,6 +94,7 @@ const PollContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
 
   a {
     text-decoration: none;
