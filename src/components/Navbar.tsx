@@ -22,7 +22,7 @@ export const Navbar: FC<{ user?: User }> = ({ user }) => {
             </NavLink>
             <NavLink to="/leaderboard">LeaderBoard</NavLink>
             <NavLink to="/">Home</NavLink>
-            <Button onClick={() => dispatch(logout())} buttonText="Log Out" />
+            <Button onClick={() => dispatch(logout())}>Log Out</Button>
           </div>
         </>
       )}

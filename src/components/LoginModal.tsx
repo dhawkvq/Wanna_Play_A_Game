@@ -4,6 +4,7 @@ import { useAppDispatch, useReduxState } from "../hooks";
 import { Button as SubmitButton } from "./Button";
 import { login } from "../redux/reducers/currentUserReducer";
 import { addError } from "../redux/reducers/errorReducer";
+import { FormInput } from "./FormInput";
 
 export const LoginModal: FC = () => {
   const [userName, setUserName] = useState("");
@@ -41,9 +42,24 @@ export const LoginModal: FC = () => {
 
   return (
     <LoginForm onSubmit={handleSubmit}>
-      <h2>{register ? "Login" : "Sign Up"}</h2>
+      <h2>{register ? "Sign Up" : "Login"}</h2>
       <InputContainer>
         {register ? (
+          <>
+            <Input
+              type="text"
+              placeholder="User name"
+              value={userName}
+              onChange={(e) => setUserName(e.currentTarget.value)}
+            />
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.currentTarget.value)}
+            />
+          </>
+        ) : (
           <>
             <Select
               id="userSelect"
@@ -67,28 +83,13 @@ export const LoginModal: FC = () => {
               />
             )}
           </>
-        ) : (
-          <>
-            <Input
-              type="text"
-              placeholder="User name"
-              value={userName}
-              onChange={(e) => setUserName(e.currentTarget.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.currentTarget.value)}
-            />
-          </>
         )}
       </InputContainer>
       <SubmitButton>Submit</SubmitButton>
       <p>
-        {register ? "Not a member?" : "Already a member?"}{" "}
+        {register ? "Already a member?" : "Not a member?"}{" "}
         <InlineButton onClick={handleClick}>
-          {register ? "Sign Up" : "Login"}
+          {register ? "Login" : "Sign up"}
         </InlineButton>
       </p>
     </LoginForm>
@@ -107,11 +108,7 @@ const InputContainer = styled.div`
   width: 80%;
 `;
 
-const Input = styled.input`
-  border-color: #c9c9c9;
-  border-radius: 5px;
-  height: 30px;
-  border-style: solid;
+const Input = styled(FormInput)`
   width: 97%;
 `;
 

@@ -7,3 +7,5 @@ export interface Question {
   optionOne: Option;
   optionTwo: Option;
 }
+
+export type Options = keyof Pick<Question, "optionOne" | "optionTwo">;

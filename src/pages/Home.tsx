@@ -33,58 +33,40 @@ export const Home: FC = () => {
 
   return (
     <HomePage>
-      <h1>Which Poll would you like to view?</h1>
-      <div
-        style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}
-      >
+      <Container>
         {Object.entries(Preference).map(([key, value]) => {
           const selected = pollPreference === value;
           return (
-            <div
-              key={key}
-              style={{
-                border: "1px dashed blue",
-                fontSize: 30,
-                fontWeight: "bold",
-                margin: "0 10px",
-              }}
-            >
+            <PreferenceBox selected={selected} key={key}>
               <input
                 type="hidden"
                 id={key}
                 value={value}
                 defaultChecked={selected}
               />
-              <label
+              <InputLabel
                 htmlFor={key}
                 onClick={() => setPollPreference(value)}
-                style={{
-                  cursor: "pointer",
-                  color:
-                    selected && pollPreference === Preference.ANSWERED
-                      ? "red"
-                      : selected && pollPreference === Preference.NOT_ANSWERED
-                      ? "green"
-                      : "black",
-                  textDecoration: selected ? "underline" : undefined,
-                }}
+                selected={selected}
               >
                 {value}
-              </label>
-            </div>
+              </InputLabel>
+            </PreferenceBox>
           );
         })}
-      </div>
+      </Container>
 
-      {!!preferredPoll.length && (
-        <PollContainer>
-          {preferredPoll.map((poll) => (
+      <PollContainer>
+        {!!preferredPoll.length ? (
+          preferredPoll.map((poll) => (
             <Link key={poll.id} to={`questions/${poll.id}`}>
               <Poll questionKey={poll.id} />
             </Link>
-          ))}
-        </PollContainer>
-      )}
+          ))
+        ) : (
+          <h1>Nothing to see here!</h1>
+        )}
+      </PollContainer>
     </HomePage>
   );
 };
@@ -108,5 +90,25 @@ const HomePage = styled.div`
   flex: 1;
   flex-direction: column;
   width: 100%;
-  margin-top: 70px;
+`;
+
+const PreferenceBox = styled.div<{ selected: boolean }>`
+  font-size: 25px;
+  font-weight: bold;
+  margin: 0 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid ${({ selected }) => (selected ? "green" : "gray")};
+  box-shadow: ${({ selected }) => (selected ? "2px 2px 15px green" : "")};
+`;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+`;
+
+const InputLabel = styled.label<{ selected: boolean }>`
+  cursor: pointer;
+  color: ${({ selected }) => (selected ? "green" : "black")};
 `;

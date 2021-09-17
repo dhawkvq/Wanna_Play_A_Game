@@ -23,8 +23,6 @@ export const LeaderBoard: FC = () => {
 
   return (
     <Board>
-      <PageTitle>LeaderBoard</PageTitle>
-      <Divider />
       <LeaderBox>
         <TableHeader>
           <TableDescription />
@@ -42,21 +40,9 @@ export const LeaderBoard: FC = () => {
 const Board = styled.div`
   min-width: 100%;
   flex: 1;
-  padding: 110px 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const PageTitle = styled.h1`
-  align-self: flex-start;
-  margin: 20px 0 5px 30px;
-`;
-
-const Divider = styled.div`
-  border: 1px solid #8b8b8b;
-  width: 95%;
-  margin-bottom: 20px;
 `;
 
 const LeaderBox = styled.div`

@@ -1,6 +1,36 @@
-# Getting Started with Create React App
+<h1 style='font-size:40px'> Would You Rather?</h1>
+This project is centered around creating polls that you and any other person can answer. Would you rather lose sight or your memories? Would you rather have universal respect or unlimited power? You know, all the most important questions in life. Put your thoughts to the test and see what other users vote for, with the leaderboard showing the most active users on the application.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<br>
+<br>
+
+# Prerequisites
+
+**Node v.14**
+
+```
+Project was built with pinned version in package.json
+```
+
+> If you have Volta managing your Node version then you are all set to go 🤘
+
+**Ready for blastoff!**
+
+All you need to do now is install project dependencies, So run:
+
+```
+npm i
+```
+
+followed by:
+
+```
+npm start
+```
+
+> > FYI: When signing in as an existing user, the password you enter does not matter, as long as it is not empty. Registering as a user is not a current capability of the application. That feature is currently for mockup only.
+
+<div style='border:2px solid gray;margin:40px 0'></div>
 
 ## Available Scripts
 
